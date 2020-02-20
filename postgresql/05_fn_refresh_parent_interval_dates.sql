@@ -1,7 +1,7 @@
 /* 
 Пересчет дат родительских интервалов на основе интервалов дат потомков 
 */
-CREATE OR REPLACE FUNCTION public.refreshParentIntervalDates ()
+CREATE OR REPLACE FUNCTION public.fn_refresh_parent_interval_dates ()
 RETURNS VOID
 LANGUAGE SQL
 AS
@@ -46,7 +46,7 @@ Parents AS (
 */
 DateIntervalParents AS (
 	SELECT
-		diBran.PointId,
+		diBran.DateIntervalId,
 		diLeaf.StartDate,
 		diLeaf.FinishDate
 	FROM DateIntervals diLeaf
@@ -63,18 +63,18 @@ DateIntervalParents AS (
 DateIntervalParentDates as (
 	SELECT
 		dip.DateIntervalId,
-		min(dip.StartDate) as DateMin,
-		max(dip.FinishDate) as DateMax
+		min(dip.StartDate) as StartDate,
+		max(dip.FinishDate) as FinishDate
 	FROM DateIntervalParents dip
 	GROUP BY dip.DateIntervalId
-),
+)
 
 UPDATE DateInterval di
 SET
 	StartDate = dipd.StartDate,
 	FinishDate = dipd.FinishDate
 FROM DateIntervalParentDates dipd
-WHERE dipd.PointId = di.PointId
+WHERE dipd.DateIntervalId = di.DateIntervalId
 	AND (
 		di.StartDate IS DISTINCT FROM dipd.StartDate OR
 		di.FinishDate IS DISTINCT FROM dipd.FinishDate

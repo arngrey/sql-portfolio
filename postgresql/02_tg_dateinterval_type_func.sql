@@ -1,11 +1,11 @@
 /*
-	Триггер для поддержания в согласованном состоянии поля Type:
+	Триггер для поддержания в согласованном состоянии "рассчетного" поля Type:
 	- если у интервала нулевая длительность, то 'point' - точка
 	- если у интервала есть потомки, то 'summary' - суммарный
 	- иначе 'interval' - обычный интервал
 */
 
-CREATE OR REPLACE FUNCTION tg_dateinterval_type_func()
+CREATE OR REPLACE FUNCTION public.tg_dateinterval_type_func()
 RETURNS TRIGGER 
 LANGUAGE plpgsql
 AS $$
@@ -68,12 +68,13 @@ BEGIN
    RETURN NULL;
 END; $$;
 
-
+/* При вставке пересчитываем для всех новых без исключения */
 CREATE TRIGGER tg_dateinterval_type_ins
 AFTER INSERT ON DateInterval
 FOR EACH ROW
 EXECUTE PROCEDURE tg_dateinterval_type_func();
 
+/* При превращении интервала в точку и наоборот пересчитываем для изменившегося */
 CREATE TRIGGER tg_dateinterval_type_upd_transform
 AFTER UPDATE ON DateInterval
 FOR EACH ROW
@@ -85,6 +86,7 @@ WHEN (
 )
 EXECUTE PROCEDURE tg_dateinterval_type_func();
 
+/* При изменении родителя, пересчитываем старого и нового родителя */
 CREATE TRIGGER tg_dateinterval_type_upd_reparent
 AFTER UPDATE ON DateInterval
 FOR EACH ROW
@@ -94,6 +96,7 @@ WHEN (
 )
 EXECUTE PROCEDURE tg_dateinterval_type_func();
 
+/* При удалении пересчитываем только старого родителя */
 CREATE TRIGGER tg_dateinterval_type_del
 AFTER DELETE on DateInterval
 FOR EACH ROW
