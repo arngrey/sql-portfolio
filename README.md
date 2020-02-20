@@ -2,8 +2,8 @@
 This one was created to show my skills in writing sql functions and stored procs
 
 # Why
-To show my ability to write understandable sql code (functions/triggers)
-To show my ability to see performance bottlenecks (optimization progress could be seen at "Resolved problems" section)
+- To show my ability to write understandable sql code (functions/triggers)
+- To show my ability to see performance bottlenecks (optimization progress could be seen at "Resolved problems" section)
 
 # Resolved problems
 - DateInterval.Type calculation moved to trigger "public.tg_dateinterval_type_func"
